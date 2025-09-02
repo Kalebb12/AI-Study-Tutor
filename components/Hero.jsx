@@ -1,17 +1,24 @@
+"use client"
+
 import { motion } from "motion/react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea"
+import { Send } from "lucide-react";
+import { useChat } from "@/context/ChatContext";
+
 
 const Hero = () => {
   const [topic, setTopic] = useState("");
   const [fileName, setFileName] = useState(null);
   const router = useRouter();
+  const {sendMessage} = useChat();
+  
   
 
   function goToLesson(t) {
-    // Simple navigation: app expects /lesson?topic=... to exist
-    if (!t || !t.trim()) return;
-    router.push(`/lesson?topic=${encodeURIComponent(t.trim())}`);
+    sendMessage(t);
+    router.push(`/chat`);
   }
 
   function handleSubmit(e) {
@@ -43,7 +50,7 @@ const Hero = () => {
           transition={{ duration: 0.5 }}
           className="text-4xl sm:text-5xl font-extrabold leading-tight"
         >
-          Teach. Practice. Master —{" "}
+          Learn. Practice. Master —{" "}
           <span className="text-indigo-600">any topic</span>, instantly.
         </motion.h1>
 
@@ -53,23 +60,23 @@ const Hero = () => {
           quick revision, or supplementing classroom materials.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 flex gap-3">
+        <form onSubmit={handleSubmit} className="mt-6 flex items-end gap-3">
           <label htmlFor="topic" className="sr-only">
             Topic
           </label>
-          <input
+          <Textarea
             id="topic"
             className="flex-1 rounded-2xl border border-foreground/10 shadow-sm px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-            placeholder="Try: "
+            placeholder="Type your message here"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             aria-label="Enter topic"
           />
           <button
             type="submit"
-            className="rounded-2xl bg-indigo-600 text-white px-5 py-3 font-medium shadow-md hover:bg-indigo-700 focus:outline-none"
+            className="rounded-xl bg-indigo-600 text-white px-5 py-3 font-medium shadow-md hover:bg-indigo-700 focus:outline-none"
           >
-            Teach me
+            <Send />
           </button>
         </form>
 
