@@ -2,7 +2,7 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const Navbar = () => {
   return (
-    <header className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
+    <header className="mx-auto px-6 py-6 flex items-center justify-between fixed top-0 left-0 right-0 bg-background">
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-rose-500 shadow-lg flex items-center justify-center text-white font-bold italic">
           X

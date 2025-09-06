@@ -11,14 +11,29 @@ export const ChatProvider = ({ children }) => {
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify( {msg} ),
+        body: JSON.stringify({ msg }),
       });
 
-      const { message } = await res.json();
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
 
-      // Add AI response
-      const aiMessage = { role: "assistant", content: message };
-      setMessages((prev) => [...prev, aiMessage]);
+      let aiMessage = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        aiMessage += decoder.decode(value, { stream: true });
+
+        setMessages((prev) => {
+          const newMessages = [...prev];
+          const lastMessage = newMessages[newMessages.length - 1];
+          if (lastMessage?.role === "assistant") {
+            lastMessage.content = aiMessage;
+          } else {
+            newMessages.push({ role: "assistant", content: aiMessage });
+          }
+          return newMessages;
+        });
+      }
     } catch (err) {
       console.error("error from catch", err);
       const errMessage = {

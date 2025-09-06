@@ -33,8 +33,12 @@ export default function RootLayout({ children }) {
         >
           <ChatProvider>
             <Navbar />
-            {children}
-            </ChatProvider>
+            <main className="pt-24">
+              {/* Add top padding for navbar */}
+
+              {children}
+            </main>
+          </ChatProvider>
         </ThemeProvider>
       </body>
     </html>

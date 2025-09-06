@@ -26,13 +26,13 @@ export default function ChatPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages.role]);
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
+    <div className="flex flex-col bg-background text-foreground">
       {/* Chat Window */}
       <Card className="flex-1 m-4 shadow-lg border rounded-2xl overflow-hidden">
-        <CardContent className="flex flex-col h-full p-4 overflow-y-auto space-y-4">
+        <CardContent className="flex flex-col h-full p-4 overflow-y-auto space-y-4 overflow-x-clip">
           {messages.map((msg, idx) => (
             <div
               key={idx}
@@ -40,12 +40,14 @@ export default function ChatPage() {
                 "max-w-[70%] p-3 rounded-2xl text-sm shadow-sm",
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground self-end"
-                  : "bg-muted text-foreground self-start"
+                  : "bg-muted text-foreground self-start tracking-normal text-base leading-relaxed",
+                  "whitespace-pre-wrap break-words break-all prose prose-sm sm:prose-base  dark:prose-invert"
               )}
             >
               <Markdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeHighlight, rehypeKatex]}
+                // className="prose prose-sm sm:prose-base max-w-none dark:prose-invert"
               >
                 {msg.content}
               </Markdown>
@@ -56,7 +58,7 @@ export default function ChatPage() {
       </Card>
 
       {/* Input Section */}
-      <div className="p-4 border-t bg-background">
+      <div className="p-4 border-t fixed bottom-0 left-0 right-0 bg-background">
         <div className="flex gap-2">
           <Input
             placeholder="Type your message..."
