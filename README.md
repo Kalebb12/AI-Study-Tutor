@@ -33,6 +33,6 @@ GEMINI_API_KEY=your_google_ai_studio_key_here
 ### 1) Clone & install
 
 ```bash
-git clone https://github.com/your-username/ai-study-tutor.git
-cd ai-study-tutor
+git clone https://github.com/kalebb12/Ai-Study-tutor.git
+cd Ai-Study-tutor
 npm install
