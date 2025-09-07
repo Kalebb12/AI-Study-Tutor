@@ -1,7 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request, { params }) {
-  const { msg } = await request.json();
+  const { msg, chat } = await request.json();
+  const history = chat.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -11,8 +15,21 @@ export async function POST(request, { params }) {
     //   contents: [{ role: "user", parts: [{ text: `Explain ${msg} in a concise and clear manner. Give notes, examples, and a short quiz at the end to test understanding.` }] }],
     // });
 
-    const result = await model.generateContentStream(msg,{
-      
+    const result = await model.generateContentStream({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are an AI study tutor. 
+        Teach step by step, give examples, and ask short questions to check understanding. 
+        Stay conversational and continue from previous context.`,
+            },
+          ],
+        },
+        ...history,
+        { role: "user", parts: [{ text: msg }] },
+      ],
     });
 
     const encoder = new TextEncoder();

@@ -19,19 +19,19 @@ export default function ChatPage() {
 
   const handleSend = () => {
     if (!input.trim()) return;
-    sendMessage({ role: "user", content: input });
+    sendMessage(input);
     setInput("");
     // Later: call your AI API here
   };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.role]);
+  }, [messages[messages.length - 1].role]);
 
   return (
     <div className="flex flex-col bg-background text-foreground">
       {/* Chat Window */}
-      <Card className="flex-1 m-4 shadow-lg border rounded-2xl overflow-hidden">
+      <Card className="flex-1 min-h-screen m-4 shadow-lg border rounded-2xl overflow-hidden">
         <CardContent className="flex flex-col h-full p-4 overflow-y-auto space-y-4 overflow-x-clip">
           {messages.map((msg, idx) => (
             <div
