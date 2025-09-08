@@ -6,12 +6,12 @@ const ChatContext = createContext(null);
 export const ChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   // The client gets the API key from the environment variable `GEMINI_API_KEY`.
-  async function fetchResponse(msg) {
+  async function fetchResponse(formData) {
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ msg , chat: messages }),
+        // headers: { "Content-Type": "application/json" },
+        body: formData,
       });
 
       const reader = res.body?.getReader();
@@ -44,13 +44,18 @@ export const ChatProvider = ({ children }) => {
     }
   }
 
-  const sendMessage = (msg) => {
+  const sendMessage = (msg, file, imagePreviewUrl) => {
     // Add user message
-    const newMessage = { role: "user", content: msg };
+    const newMessage = { role: "user", content: msg ,image: imagePreviewUrl};
     setMessages((prev) => [...prev, newMessage]);
 
+    const formData = new FormData()
+    formData.append("message",msg)
+    formData.append("chat",JSON.stringify([...messages, newMessage]))
+    if (file) formData.append("file",file)
+
     // Fetch AI response
-    fetchResponse(msg);
+    fetchResponse(formData);
   };
 
   return (

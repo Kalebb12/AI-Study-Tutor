@@ -11,22 +11,32 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
+import { Plus } from "lucide-react";
 
 export default function ChatPage() {
   const { messages, sendMessage } = useChat();
+  const [file, setFile] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    setImagePreviewUrl(URL.createObjectURL(selectedFile));
+  };
+
   const handleSend = () => {
     if (!input.trim()) return;
-    sendMessage(input);
+    sendMessage(input, file , imagePreviewUrl);
     setInput("");
-    // Later: call your AI API here
+    setFile(null);
+    setImagePreviewUrl(null);
   };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages[messages.length - 1].role]);
+  }, [messages[messages.length - 1]?.role]);
 
   return (
     <div className="flex flex-col bg-background text-foreground">
@@ -41,9 +51,16 @@ export default function ChatPage() {
                 msg.role === "user"
                   ? "bg-primary text-primary-foreground self-end"
                   : "bg-muted text-foreground self-start tracking-normal text-base leading-relaxed",
-                  "whitespace-pre-wrap break-words break-all prose prose-sm sm:prose-base  dark:prose-invert"
+                "whitespace-pre-wrap break-words break-all prose prose-sm sm:prose-base  dark:prose-invert"
               )}
             >
+              {msg.image && (
+                <img
+                  src={msg.image}
+                  alt="preview"
+                  className="max-w-xs max-h-60 rounded-lg mb-2"
+                />
+              )}
               <Markdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeHighlight, rehypeKatex]}
@@ -67,6 +84,21 @@ export default function ChatPage() {
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             className="flex-1 rounded-2xl"
           />
+
+          <input
+            type="file"
+            hidden
+            id="file-upload"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          <label
+            htmlFor="file-upload"
+            className="flex items-center px-3 border rounded-2xl cursor-pointer hover:bg-accent hover:text-accent-foreground transition"
+          >
+            <Plus />
+          </label>
+
           <Button onClick={handleSend} className="rounded-2xl px-6">
             Send
           </Button>

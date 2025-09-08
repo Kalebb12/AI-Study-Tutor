@@ -1,19 +1,46 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request, { params }) {
-  const { msg, chat } = await request.json();
-  const history = chat.map((m) => ({
-    role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
-  }));
+  const formData = await request.formData();
+  const chatString = formData.get("chat");
+  const chat = JSON.parse(chatString || "[]");
+  const msg = formData.get("message");
+  const file = formData.get("file");
+
+  const inputs = [];
+  const history = chat
+    .map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }))
+    .slice(-12); // Limit to last 12 messages to manage context length
+
+  if (msg) {
+    inputs.push({
+      role: "user",
+      parts: [{ text: msg }],
+    });
+  }
+  if (file) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64 = buffer.toString("base64");
+
+    inputs.push({
+      role: "user",
+      parts: [
+        {
+          inlineData: {
+            mimeType: file.type,
+            data: base64,
+          },
+        },
+      ],
+    });
+  }
 
   try {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    // const result = await model.generateContentStream({
-    //   contents: [{ role: "user", parts: [{ text: `Explain ${msg} in a concise and clear manner. Give notes, examples, and a short quiz at the end to test understanding.` }] }],
-    // });
 
     const result = await model.generateContentStream({
       contents: [
@@ -28,7 +55,7 @@ export async function POST(request, { params }) {
           ],
         },
         ...history,
-        { role: "user", parts: [{ text: msg }] },
+        ...inputs,
       ],
     });
 
